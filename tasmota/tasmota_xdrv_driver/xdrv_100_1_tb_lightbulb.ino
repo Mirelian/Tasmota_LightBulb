@@ -25,6 +25,13 @@ bool Xdrv100(uint32_t function)
         Tele[0].change = true;
         break;
     }
+
+    case FUNC_EVERY_50_MSECOND:
+    {
+        RPCThingsBoardFetch();
+        break;
+    }
+
     case FUNC_EVERY_SECOND:
     {
         if (strcmp(tb_host, SettingsText(SET_MEM15)) != 0 || strcmp(tb_token, SettingsText(SET_MEM16)) != 0)
@@ -35,8 +42,6 @@ bool Xdrv100(uint32_t function)
         }
 
         char color_str[20];
-
-        FetchThingsBoardRPC();
 
         LightGetColor(color_str, sizeof(color_str));
 
@@ -51,7 +56,7 @@ bool Xdrv100(uint32_t function)
             }
         }
 
-        SendThingsBoardTelemetry();
+        TelementaryThingsBoardSend();
 
         break;
     }

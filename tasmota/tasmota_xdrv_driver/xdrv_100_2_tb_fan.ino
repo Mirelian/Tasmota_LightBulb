@@ -16,6 +16,12 @@ bool Xdrv100(uint32_t function)
         break;
     }
 
+    case FUNC_EVERY_50_MSECOND:
+    {
+        RPCThingsBoardFetch();
+        break;
+    }
+
     case FUNC_SET_POWER:
     {
         if (!Tele)
@@ -35,8 +41,6 @@ bool Xdrv100(uint32_t function)
             snprintf_P(tb_token, sizeof(tb_token), PSTR("%s"), SettingsText(SET_MEM16));
             AddLog(LOG_LEVEL_INFO, PSTR("TB : ThingsBoard HTTP Initialized"));
         }
-
-        FetchThingsBoardRPC();
 
         uint8_t speed = LightGetDimmer(0);
 
@@ -91,7 +95,7 @@ bool Xdrv100(uint32_t function)
             }
         }
 
-        SendThingsBoardTelemetry();
+        TelementaryThingsBoardSend();
 
         break;
     }
