@@ -13,7 +13,26 @@ bool Xdrv100(uint32_t function)
             {"Temperature (°C)", "", false},
             {"Humidity (%)", "", false}};
         TeleSize = 4;
-        break;
+
+        uint8_t mac[6];
+        WiFi.macAddress(mac);
+
+        char host_name[20];
+        snprintf(host_name, sizeof(host_name), "Fan-%02X%02X%02X", mac[3], mac[4], mac[5]);
+
+        if (!strstr(SettingsText(SET_HOSTNAME), "Fan"))
+        {
+            SettingsUpdateText(SET_HOSTNAME, host_name);
+        }
+
+        if (!Settings->flag3.mdns_enabled)
+        {
+            ExecuteCommand("SetOption55 1", SRC_IGNORE);
+        }
+
+        AddLog(LOG_LEVEL_INFO, PSTR("TB : hostname set to http://%s.local"), host_name)
+
+            break;
     }
 
     case FUNC_EVERY_50_MSECOND:

@@ -12,6 +12,25 @@ bool Xdrv100(uint32_t function)
             {"Color", "", false},
             {"CT", "", false}};
         TeleSize = 3;
+
+        uint8_t mac[6];
+        WiFi.macAddress(mac);
+
+        char host_name[20];
+        snprintf(host_name, sizeof(host_name), "Bulb-%02X%02X%02X", mac[3], mac[4], mac[5]);
+
+        if (!strstr(SettingsText(SET_HOSTNAME), "Bulb"))
+        {
+            SettingsUpdateText(SET_HOSTNAME, host_name);
+        }
+
+        if (!Settings->flag3.mdns_enabled)
+        {
+            ExecuteCommand("SetOption55 1", SRC_IGNORE);
+        }
+
+        AddLog(LOG_LEVEL_INFO, PSTR("TB : hostname set to http://%s.local"), host_name);
+
         break;
     }
 
