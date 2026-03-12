@@ -1,5 +1,5 @@
-#ifdef USE_TB_FAN
 #ifdef USE_THINGSBOARD
+#ifdef USE_TB_FAN
 
 bool Xdrv100(uint32_t function)
 {
@@ -13,6 +13,13 @@ bool Xdrv100(uint32_t function)
             {"Temperature (°C)", "", false},
             {"Humidity (%)", "", false}};
         TeleSize = 4;
+
+        snprintf_P(tb_host, sizeof(tb_host), PSTR("%s"), SettingsText(SET_MEM15));
+        snprintf_P(tb_token, sizeof(tb_token), PSTR("%s"), SettingsText(SET_MEM16));
+        if (!tb_host[0] || !tb_token[0])
+        {
+            AddLog(LOG_LEVEL_INFO, PSTR("TB : ThingsBoard HTTP Initialized"));
+        }
 
         uint8_t mac[6];
         WiFi.macAddress(mac);
@@ -30,9 +37,7 @@ bool Xdrv100(uint32_t function)
             ExecuteCommand("SetOption55 1", SRC_IGNORE);
         }
 
-        AddLog(LOG_LEVEL_INFO, PSTR("TB : hostname set to http://%s.local"), host_name)
-
-            break;
+        break;
     }
 
     case FUNC_EVERY_50_MSECOND:
@@ -54,13 +59,6 @@ bool Xdrv100(uint32_t function)
 
     case FUNC_EVERY_SECOND:
     {
-        if (strcmp(tb_host, SettingsText(SET_MEM15)) != 0 || strcmp(tb_token, SettingsText(SET_MEM16)) != 0)
-        {
-            snprintf_P(tb_host, sizeof(tb_host), PSTR("%s"), SettingsText(SET_MEM15));
-            snprintf_P(tb_token, sizeof(tb_token), PSTR("%s"), SettingsText(SET_MEM16));
-            AddLog(LOG_LEVEL_INFO, PSTR("TB : ThingsBoard HTTP Initialized"));
-        }
-
         uint8_t speed = LightGetDimmer(0);
 
         switch (speed)
@@ -118,6 +116,17 @@ bool Xdrv100(uint32_t function)
 
         break;
     }
+#ifdef USE_WEBSERVER
+    case FUNC_WEB_ADD_BUTTON:
+        WSContentSend_P(HTTP_FORM_BUTTON, PSTR("tb"), PSTR("ThingsBoard"));
+        break;
+
+    case FUNC_WEB_ADD_HANDLER:
+        WebServer_on(PSTR("/"
+                          "tb"),
+                     HandleThingsBoardConfiguration);
+        break;
+#endif
     }
     return false;
 }
