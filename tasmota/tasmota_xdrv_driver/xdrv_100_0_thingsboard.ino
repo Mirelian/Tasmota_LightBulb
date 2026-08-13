@@ -35,7 +35,6 @@ void TelementaryThingsBoardSend()
                 payload += ",";
 
             payload += "\"" + String(Tele[i].key) + "\":\"" + String(Tele[i].value) + "\"";
-            Tele[i].change = false;
         }
     }
 
@@ -57,13 +56,22 @@ void TelementaryThingsBoardSend()
 
     uint16_t httpCode = http.POST(payload);
 
-    if (httpCode > 0)
+    if (httpCode >= 200 && httpCode < 300)
     {
-        AddLog(LOG_LEVEL_INFO, PSTR("TB : HTTP %d - Sent Telementary %s"), httpCode, payload.c_str());
+        for (uint8_t i = 0; i < TeleSize; i++)
+        {
+            Tele[i].change = false;
+        }
+
+        AddLog(LOG_LEVEL_INFO,
+               PSTR("TB : HTTP %d - Sent Telementary %s"),
+               httpCode, payload.c_str());
     }
     else
     {
-        AddLog(LOG_LEVEL_ERROR, PSTR("TB : HTTP failed (%d)"), httpCode);
+        AddLog(LOG_LEVEL_ERROR,
+               PSTR("TB : HTTP failed (%d)"),
+               httpCode);
     }
 
     http.end();
