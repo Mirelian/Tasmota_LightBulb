@@ -12,6 +12,8 @@ struct Telementary_data
 Telementary_data *Tele = nullptr;
 uint8_t TeleSize = 0;
 
+bool RPCThingsBoardDeviceProcess(const char *method, JsonParserObject root);
+
 static char tb_host[50] = "";
 static char tb_token[50] = "";
 
@@ -86,6 +88,7 @@ void RPCThingsBoardProcess(char *payload)
 
     JsonParser parser(payload);
     JsonParserObject root = parser.getRootObject();
+
     const char *method = root[PSTR("method")].getStr();
 
     if (!method || !method[0])
@@ -93,59 +96,29 @@ void RPCThingsBoardProcess(char *payload)
 
     AddLog(LOG_LEVEL_INFO, PSTR("TB : RPC %s"), method);
 
-    if (strcmp(method, "setCT") == 0)
-    { // params: 153-500
-        LightSetColorTemp(root[PSTR("params")].getUInt());
-        LightPreparePower(2);
-    }
-    else if (strcmp(method, "setHue") == 0)
-    { // params: 0-359
-        uint16_t hue = root[PSTR("params")].getUInt();
-        char cmd[30];
-        snprintf(cmd, sizeof(cmd), "HsbColor1 %u", hue);
-        ExecuteCommand(cmd, SRC_WEBGUI); // updates light & telemetry
-    }
-    else if (strcmp(method, "setSaturation") == 0)
-    { // params: 0-100
-        uint8_t sat = root[PSTR("params")].getUInt();
-        char cmd[30];
-        snprintf(cmd, sizeof(cmd), "HsbColor2 %u", sat);
-        ExecuteCommand(cmd, SRC_WEBGUI);
-    }
-    else if (strcmp(method, "setDimmer") == 0)
-    { // params: 0-100
-        uint8_t dimm = root[PSTR("params")].getUInt();
-        LightSetDimmer(dimm);
-        LightPreparePower(2);
-    }
-    else if (strcmp(method, "setPower") == 0)
-    { // params: true/false or 1/0
-        bool on = root[PSTR("params")].getBool();
-        char cmd[30];
-        snprintf(cmd, sizeof(cmd), "Power %u", on);
-        ExecuteCommand(cmd, SRC_WEBGUI);
-    }
-    else if (strcmp(method, "setFanSpeed") == 0)
-    { // params: 0-100
-        char speed = root[PSTR("params")].getStr()[0];
+    RPCThingsBoardDeviceProcess(method, root);
 
-        switch (speed)
-        {
-        case 'L':
-            LightSetDimmer(60);
-            break;
-        case 'M':
-            LightSetDimmer(80);
-            break;
-        case 'H':
-            LightSetDimmer(100);
-            break;
-        default:
-            LightSetDimmer(20);
-            break;
-        }
-        LightPreparePower(2);
-    }
+    //    if (strcmp(method, "setFanSpeed") == 0)
+    // { // params: 0-100
+    //     char speed = root[PSTR("params")].getStr()[0];
+
+    //     switch (speed)
+    //     {
+    //     case 'L':
+    //         LightSetDimmer(60);
+    //         break;
+    //     case 'M':
+    //         LightSetDimmer(80);
+    //         break;
+    //     case 'H':
+    //         LightSetDimmer(100);
+    //         break;
+    //     default:
+    //         LightSetDimmer(20);
+    //         break;
+    //     }
+    //     LightPreparePower(2);
+    // }
 }
 
 #endif // USE_THINGSBOARD
