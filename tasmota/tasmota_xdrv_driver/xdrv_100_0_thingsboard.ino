@@ -17,6 +17,31 @@ bool RPCThingsBoardDeviceProcess(const char *method, JsonParserObject root);
 static char tb_host[50] = "";
 static char tb_token[50] = "";
 
+void ThingsBoardInit(const char *device_name)
+{
+    snprintf_P(tb_host, sizeof(tb_host), PSTR("%s"), SettingsText(SET_MEM15));
+    snprintf_P(tb_token, sizeof(tb_token), PSTR("%s"), SettingsText(SET_MEM16));
+
+    if (!tb_host[0] || !tb_token[0])
+    {
+        AddLog(LOG_LEVEL_INFO, PSTR("TB : ThingsBoard HTTP Initialized"));
+    }
+
+    uint8_t mac[6];
+    WiFi.macAddress(mac);
+
+    char host_name[32];
+    snprintf_P(host_name, sizeof(host_name),
+               PSTR("%s-%02X%02X%02X"),
+               device_name,
+               mac[3], mac[4], mac[5]);
+
+    if (strcmp(SettingsText(SET_HOSTNAME), host_name) != 0)
+    {
+        SettingsUpdateText(SET_HOSTNAME, host_name);
+    }
+}
+
 void TelementaryThingsBoardSend()
 {
     if (!WiFi.isConnected())
@@ -56,7 +81,7 @@ void TelementaryThingsBoardSend()
     http.begin(client, url);
     http.addHeader("Content-Type", "application/json");
 
-    uint16_t httpCode = http.POST(payload);
+    int httpCode = http.POST(payload);
 
     if (httpCode >= 200 && httpCode < 300)
     {

@@ -57,28 +57,7 @@ bool Xdrv100(uint32_t function)
             {"CT", "", false}};
         TeleSize = 3;
 
-        snprintf_P(tb_host, sizeof(tb_host), PSTR("%s"), SettingsText(SET_MEM15));
-        snprintf_P(tb_token, sizeof(tb_token), PSTR("%s"), SettingsText(SET_MEM16));
-        if (!tb_host[0] || !tb_token[0])
-        {
-            AddLog(LOG_LEVEL_INFO, PSTR("TB : ThingsBoard HTTP Initialized"));
-        }
-
-        uint8_t mac[6];
-        WiFi.macAddress(mac);
-
-        char host_name[20];
-        snprintf(host_name, sizeof(host_name), "Bulb-%02X%02X%02X", mac[3], mac[4], mac[5]);
-
-        if (!strstr(SettingsText(SET_HOSTNAME), "Bulb"))
-        {
-            SettingsUpdateText(SET_HOSTNAME, host_name);
-        }
-
-        if (!Settings->flag3.mdns_enabled)
-        {
-            ExecuteCommand("SetOption55 1", SRC_IGNORE);
-        }
+        ThingsBoardInit("Bulb");
 
         break;
     }
