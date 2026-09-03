@@ -22,7 +22,7 @@ void ThingsBoardInit(const char *device_name)
     snprintf_P(tb_host, sizeof(tb_host), PSTR("%s"), SettingsText(SET_MEM15));
     snprintf_P(tb_token, sizeof(tb_token), PSTR("%s"), SettingsText(SET_MEM16));
 
-    if (!tb_host[0] || !tb_token[0])
+    if (tb_host[0] && tb_token[0])
     {
         AddLog(LOG_LEVEL_INFO, PSTR("TB : ThingsBoard HTTP Initialized"));
     }
